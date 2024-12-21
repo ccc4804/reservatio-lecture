@@ -35,3 +35,18 @@ out/
 
 ### VS Code ###
 .vscode/
+/.gradle/
+/.gradle/8.11.1/
+/.gradle/buildOutputCleanup/
+/.gradle/vcs-1/
+/.idea/
+/.idea/.gitignore
+/.idea/aws.xml
+/.idea/checkstyle-idea.xml
+/.idea/compiler.xml
+/.idea/git_toolbox_blame.xml
+/.idea/git_toolbox_prj.xml
+/.idea/gradle.xml
+/.idea/misc.xml
+/.idea/vcs.xml
+/.idea/workspace.xml
