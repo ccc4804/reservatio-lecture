@@ -1,7 +1,6 @@
-package com.apply.course.infra.repository.user;
+package com.apply.course.infra.db.user.repository;
 
 import com.apply.course.infra.db.user.entity.UserEntity;
-import com.apply.course.infra.db.user.repository.UserCrudRepository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

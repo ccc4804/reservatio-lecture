@@ -1,7 +1,6 @@
-package com.apply.course.infra.repository.lecture;
+package com.apply.course.infra.db.lecture.repository;
 
 import com.apply.course.infra.db.lecture.entity.LectureEntity;
-import com.apply.course.infra.db.lecture.repository.LectureCrudRepository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,15 +18,13 @@ class LectureCrudRepositoryTest {
     @DisplayName("특강 저장 테스트")
     void testSaveLecture() {
         LectureEntity lecture = LectureEntity.builder()
-                .name("Test Lecture")
-                .maxReservationUsers(10)
+                .title("Test Lecture")
                 .build();
 
         when(lectureCrudRepository.save(lecture)).thenReturn(lecture);
 
         LectureEntity savedLecture = lectureCrudRepository.save(lecture);
 
-        assertEquals("Test Lecture", savedLecture.getName());
-        assertEquals(10, savedLecture.getMaxReservationUsers());
+        assertEquals("Test Lecture", savedLecture.getTitle());
     }
 }

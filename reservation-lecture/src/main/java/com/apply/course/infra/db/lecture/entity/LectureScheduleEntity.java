@@ -6,23 +6,34 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Entity
 @NoArgsConstructor
-public class LectureEntity {
+public class LectureScheduleEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "uid", insertable = false, nullable = false)
     private Long uid;
 
-    @Column(name = "title")
-    private String title;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lecture_uid")
+    private LectureEntity lecture;
+
+    @Column(name = "open_date")
+    private LocalDate openDate;
+
+    @Column(name = "max_reservation_users")
+    private Integer maxReservationUsers;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -31,8 +42,10 @@ public class LectureEntity {
     private LocalDateTime updatedAt;
 
     @Builder
-    public LectureEntity(String title) {
-        this.title = title;
+    public LectureScheduleEntity(LectureEntity lecture, LocalDate openDate, Integer maxReservationUsers) {
+        this.lecture = lecture;
+        this.openDate = openDate;
+        this.maxReservationUsers = maxReservationUsers;
 
         LocalDateTime now = LocalDateTime.now();
         this.createdAt = now;

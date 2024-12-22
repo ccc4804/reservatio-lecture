@@ -18,11 +18,8 @@ public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "uid", insertable = false, nullable = false)
-    private Long uid;
-
-    @Column(name = "user_id")
-    private String userId;
+    @Column(name = "user_id", insertable = false, nullable = false)
+    private Long userId;
 
     @Column(name = "name")
     private String name;
@@ -34,13 +31,11 @@ public class UserEntity {
     private LocalDateTime updatedAt;
 
     @Builder
-    public UserEntity(Long uid, String userId, String name) {
-
-        LocalDateTime now = LocalDateTime.now();
-
-        this.uid = uid;
+    public UserEntity(Long userId, String name) {
         this.userId = userId;
         this.name = name;
+
+        LocalDateTime now = LocalDateTime.now();
         this.createdAt = now;
         this.updatedAt = now;
     }
