@@ -35,6 +35,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @ActiveProfiles("local")
 @AutoConfigureMockMvc
@@ -72,8 +75,7 @@ class LectureControllerTest {
         lectureSchedules = new ArrayList<>();
 
         // User 설정
-        addUser("Test1");
-        addUser("Test2");
+        addUser("Test0");
 
         // Lecture 설정
         Lecture lecture1 = addLecture("Test1", "Teacher1");
@@ -90,7 +92,7 @@ class LectureControllerTest {
                 .build());
 
         addLectureSchedule(LectureSchedule.builder()
-                .lecture(lecture1)
+                .lecture(lecture2)
                 .applyOpenDate(LocalDate.of(2024, 12, 23))
                 .applyCloseDate(LocalDate.of(2025, 12, 27))
                 .currentCapacity(10)
@@ -99,7 +101,7 @@ class LectureControllerTest {
 
         // 수강 가능 인원 1명 남음
         addLectureSchedule(LectureSchedule.builder()
-                .lecture(lecture1)
+                .lecture(lecture2)
                 .applyOpenDate(LocalDate.of(2024, 12, 23))
                 .applyCloseDate(LocalDate.of(2025, 12, 27))
                 .currentCapacity(29)
@@ -118,7 +120,7 @@ class LectureControllerTest {
 
         // 수강 가능 시간이 지남
         addLectureSchedule(LectureSchedule.builder()
-                .lecture(lecture1)
+                .lecture(lecture2)
                 .applyOpenDate(LocalDate.of(2024, 12, 23))
                 .applyCloseDate(LocalDate.of(2024, 12, 24))
                 .currentCapacity(0)
@@ -177,7 +179,7 @@ class LectureControllerTest {
         User user = users.get(0);
 
         LectureApplyRequestDTO requestDTO = LectureApplyRequestDTO.builder()
-                .lectureScheduleUid(lectureSchedules.get(0).getUid())
+                .lectureScheduleUid(lectureSchedules.get(1).getUid())
                 .userId(user.getUserId())
                 .build();
 
@@ -194,6 +196,56 @@ class LectureControllerTest {
                 = userLectureHistoryRepository.findByUserUserId(user.getUserId(), PageRequest.of(0, 100));
 
         assertEquals(1, userLectureHistoryList.size());
+    }
+
+    @Test
+    @DisplayName("회원 수강 신청 테스트 2 - 40명 특강 신청, 30명만 성공")
+    void applyLecture_case2() {
+
+        // User 40명 추가
+        for (int i = 1; i < 40; i++) {
+            addUser("Test" + i);
+        }
+
+        // 비동기 thread pool 생성
+        ExecutorService executor = Executors.newFixedThreadPool(40);
+
+        // 비동기 요청 시작
+        List<CompletableFuture<Void>> futures = users.stream()
+                .map(user -> CompletableFuture.runAsync(() -> {
+                    try {
+                        applyLecture(user);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }, executor))
+                .toList();
+
+        // 모든 비동기 작업이 완료될 때까지 대기
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        // 작업 완료 후 ExecutorService를 종료.
+        executor.shutdown();
+
+        List<UserLectureHistory> userLectureHistoryList
+                = userLectureHistoryRepository.findByLectureScheduleUid(lectureSchedules.get(0).getUid());
+
+        assertEquals(30, userLectureHistoryList.size());
+    }
+
+    private void applyLecture(User user) throws Exception {
+
+        LectureApplyRequestDTO requestDTO = LectureApplyRequestDTO.builder()
+                .lectureScheduleUid(lectureSchedules.get(0).getUid())
+                .userId(user.getUserId())
+                .build();
+
+        String requestBody = objectMapper.writeValueAsString(requestDTO);
+        String url = "/lectures/apply";
+        mockMvc.perform(post(url)
+                        .contentType("application/json")
+                        .content(requestBody)
+                );
     }
 
     private void addUser(String name) {
@@ -214,9 +266,8 @@ class LectureControllerTest {
         return lecture;
     }
 
-    private LectureSchedule addLectureSchedule(LectureSchedule lectureSchedule) {
+    private void addLectureSchedule(LectureSchedule lectureSchedule) {
         lectureSchedule = lectureScheduleRepository.save(lectureSchedule);
         lectureSchedules.add(lectureSchedule);
-        return lectureSchedule;
     }
 }
