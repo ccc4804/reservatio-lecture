@@ -3,6 +3,7 @@ package com.hhplus.domain.entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Table(name = "lecture_schedule")
+@ToString
 @NoArgsConstructor
 public class LectureSchedule {
 

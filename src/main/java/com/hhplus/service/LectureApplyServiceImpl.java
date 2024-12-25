@@ -7,11 +7,12 @@ import com.hhplus.domain.repository.LectureScheduleRepository;
 import com.hhplus.domain.repository.UserLectureHistoryRepository;
 import com.hhplus.domain.repository.UserRepository;
 import com.hhplus.service.vo.LectureApplyVO;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Slf4j
 @Service
@@ -23,27 +24,28 @@ public class LectureApplyServiceImpl implements LectureApplyService {
   private final UserLectureHistoryRepository userLectureHistoryRepository;
 
   @Override
-  @Transactional(rollbackFor = Exception.class)
+  @Transactional
   public void applyLecture(LectureApplyVO lectureApplyVO) {
 
     Long userId = lectureApplyVO.getUserId();
     User user = getUserByUserId(userId);
 
-    Long lectureScheduleUid = lectureApplyVO.getLectureScheduleUid();
-    // 수강 신청 존재 여부 검증
-    validateExistUserLectureHistory(lectureScheduleUid, userId);
 
+    Long lectureScheduleUid = lectureApplyVO.getLectureScheduleUid();
     LectureSchedule lectureSchedule = getLectureScheduleByUid(lectureScheduleUid);
+
     // 수강 신청 가능 인원 검증
     validateMaxCapacity(lectureSchedule);
 
-    log.info("applyLecture - lectureUid: {}, userId: {}", lectureScheduleUid, userId);
+    // 수강 신청 존재 여부 검증
+    validateExistUserLectureHistory(lectureScheduleUid, userId);
 
     // 수강 신청 저장
     UserLectureHistory userLectureHistory =
         UserLectureHistory.builder().lectureSchedule(lectureSchedule).user(user).build();
 
-    userLectureHistoryRepository.save(userLectureHistory);
+    userLectureHistory = userLectureHistoryRepository.save(userLectureHistory);
+    log.info("save userLectureHistory: {}", userLectureHistory);
 
     updateLectureSchedule(lectureSchedule);
   }

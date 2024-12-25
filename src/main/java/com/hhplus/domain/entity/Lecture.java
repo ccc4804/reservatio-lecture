@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Table(name = "lecture")
+@ToString
 @NoArgsConstructor
 public class Lecture {
 

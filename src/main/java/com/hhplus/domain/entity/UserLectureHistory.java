@@ -3,6 +3,7 @@ package com.hhplus.domain.entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Table(name = "user_lecture_history")
+@ToString
 @NoArgsConstructor
 public class UserLectureHistory {
 
@@ -26,6 +28,7 @@ public class UserLectureHistory {
     @Column(name = "uid", insertable = false, nullable = false)
     private Long uid;
 
+    // lectureSchedule, user는 동시성 테스트를 위해서 unique, 복합키 설정하지 않음.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lecture_schedule_uid")
     private LectureSchedule lectureSchedule;
